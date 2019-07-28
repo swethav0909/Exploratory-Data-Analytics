@@ -1,0 +1,482 @@
+---
+title: "ANLY 506 Week 6"
+author: "Swetha Venkatapuram"
+date: "June 11, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
+#Topics Covered in the week 6 Code file are as follows:
+#Data TRansformation
+#Filter, select, arrange functions 
+#Use of adding new columns functions
+#Grouped Summaries
+
+#Package Requirements to use the data
+```{r}
+library(nycflights13)
+```
+#Use for Tidy data
+```{r}
+library(tidyverse)
+```
+#Get the data for flights
+```{r}
+flights
+```
+#Filter row data of flights by month and day selected and subset them
+```{r}
+filter(flights, month == 1, day == 1)
+```
+#To save the new result, use <-
+```{r}
+jan1 <- filter(flights, month == 1, day == 1)
+```
+#To save and print at a time, put the code in one paranthesis
+```{r}
+(dec25 <- filter(flights, month == 12, day == 25))
+```
+#Becareful to use double = sign or will get an error
+```{r}
+filter(flights, month == 1)
+```
+#To find simple calculation like square root of a number
+#Example 1:
+```{r}
+sqrt(2) ^ 2 == 2
+```
+#Example 2:
+```{r}
+
+1 / 49 * 49 == 1
+```
+#To find all flights that departed in November or December:
+```{r}
+filter(flights, month == 11 | month == 12)
+```
+#Alternativve code for similar result
+```{r}
+nov_dec <- filter(flights, month %in% c(11, 12))
+```
+#Find flights that were not delayed by more than 2 hours
+```{r}
+filter(flights, !(arr_delay > 120 | dep_delay > 120))
+```
+#Alternativve code for similar result
+```{r}
+filter(flights, arr_delay <= 120, dep_delay <= 120)
+```
+#Examples to work on Missing Values
+```{r}
+NA > 5
+```
+#Example 2
+```{r}
+10==NA
+```
+#Example 3
+```{r}
+NA + 10
+```
+#Example 4
+```{r}
+NA / 2
+```
+#Example 5: This one isa bit confusing
+```{r}
+NA==NA
+```
+#Let x be MY age. We don't know how old I am
+```{r}
+x <- NA
+```
+#Let y be Brother's age. We don't know how old he is.
+```{r}
+y <- NA
+```
+#To check are me and My brother the same age?
+```{r}
+x == y
+```
+#To find the value is missing or not
+```{r}
+is.na(x)
+```
+#When use of filter(), it will by default will not take missing values
+```{r}
+df <- tibble(x = c(1, NA, 3))
+```
+```{r}
+filter(df, x > 1)
+```
+#To preserve the missing values, need to ask explicitly
+```{r}
+filter(df, is.na(x) | x > 1)
+```
+#Arrange() function works simialr to the filter() except for not selecting the rows
+```{r}
+arrange(flights, year, month, day)
+```
+#To reorder by a column either in ascending or descending
+```{r}
+arrange(flights, desc(dep_delay))
+```
+#Below code sorts missing values at the end
+```{r}
+df <- tibble(x = c(5, 2, NA))
+arrange(df, x)
+```
+#In desecnding order
+```{r}
+
+arrange(df, desc(x))
+```
+#To select columns by name
+```{r}
+select(flights, year, month, day)
+```
+#To select all columns between year and day
+```{r}
+select(flights, year:day)
+```
+#To select all columns except those from year to day
+```{r}
+select(flights, -(year:day))
+```
+#Rename is used to rename the variables but can be explicitly mention not to drop
+```{r}
+rename(flights, tail_num = tailnum)
+```
+#Another way to use select() is in conjunction with the everything()
+```{r}
+select(flights, time_hour, air_time, everything())
+```
+#To add new variables, use mutate() function
+```{r}
+flights_sml <- select(flights, 
+  year:day, 
+  ends_with("delay"), 
+  distance, 
+  air_time)
+mutate(flights_sml,
+  gain = dep_delay - arr_delay,
+  speed = distance / air_time * 60
+)
+```
+
+#To refer to the columns we created
+```{r}
+mutate(flights_sml,
+  gain = dep_delay - arr_delay,
+  hours = air_time / 60,
+  gain_per_hour = gain / hours)
+```
+
+#To only keep the new variables
+```{r}
+transmute(flights,
+  gain = dep_delay - arr_delay,
+  hours = air_time / 60,
+  gain_per_hour = gain / hours)
+```
+
+#To use modular arithmetic within the code to break integers up into pieces
+```{r}
+transmute(flights,
+  dep_time,
+  hour = dep_time %/% 100,
+  minute = dep_time %% 100)
+```
+
+#Lead allows you to refer to leading values
+```{r}
+(x <- 1:10)
+```
+```{r}
+lead(x)
+```
+#Lag allows you to refer to lagging values
+```{r}
+lag(x)
+```
+#To find the cumulative sum
+```{r}
+x
+```
+```{r}
+cumsum(x)
+```
+#To find the cumulative mean
+```{r}
+cummean(x)
+```
+#To rank the values in either order
+```{r}
+y <- c(1, 2, 2, NA, 3, 4)
+min_rank(y)
+min_rank(desc(y))
+```
+#USe of multiple variants for ranking
+```{r}
+row_number(y)
+dense_rank(y)
+percent_rank(y)
+cume_dist(y)
+```
+##Summarise() collapses a data frame to a single row
+```{r}
+summarise(flights, delay = mean(dep_delay, na.rm = TRUE))
+```
+
+#To group by a specific column(s) and see in summary
+```{r}
+by_day <- group_by(flights, year, month, day)
+summarise(by_day, delay = mean(dep_delay, na.rm = TRUE))
+```
+##To combine multiple operations with the pipe
+```{r}
+by_dest <- group_by(flights, dest)
+delay <- summarise(by_dest,
+  count = n(),
+  dist = mean(distance, na.rm = TRUE),
+  delay = mean(arr_delay, na.rm = TRUE)
+)
+delay <- filter(delay, count > 20, dest != "HNL")
+```
+#Install required packages
+```{r}
+install.packages("digest")
+```
+```{r}
+library(digest)
+```
+# We can infer that delays increase with distance up to ~750 miles 
+# Also decrease 
+```{r}
+ggplot(data = delay, mapping = aes(x = dist, y = delay)) +
+  geom_point(aes(size = count), alpha = 1/3) +
+  geom_smooth(se = FALSE)
+```
+##The below code is a bit complex as we need to give each intermediate data frame a name
+#Even though we do not need it.
+#For to solve this issue, we use pipe within the code
+```{r}
+delays <- flights %>% 
+  group_by(dest) %>% 
+  summarise(
+    count = n(),
+    dist = mean(distance, na.rm = TRUE),
+    delay = mean(arr_delay, na.rm = TRUE)
+  ) %>% 
+  filter(count > 20, dest != "HNL")
+```
+#Use code without using na.rm and we see a missing values
+```{r}
+flights %>% 
+  group_by(year, month, day) %>% 
+  summarise(mean = mean(dep_delay))
+```
+#Use na.rm to exclude them
+```{r}
+flights %>% 
+  group_by(year, month, day) %>% 
+  summarise(mean = mean(dep_delay, na.rm = TRUE))
+```
+#Excluding the cancelled flights and then considering the non cancelled flights
+```{r}
+not_cancelled <- flights %>% 
+  filter(!is.na(dep_delay), !is.na(arr_delay))
+
+not_cancelled %>% 
+  group_by(year, month, day) %>% 
+  summarise(mean = mean(dep_delay))
+```
+
+#To see or count the number of planes that have highest average delayes
+```{r}
+delays <- not_cancelled %>% 
+  group_by(tailnum) %>% 
+  summarise(
+    delay = mean(arr_delay)
+  )
+
+ggplot(data = delays, mapping = aes(x = delay)) + 
+  geom_freqpoly(binwidth = 10)
+```
+# To get a clear idea on what insight to take, 
+#lets draw a scatterplot for number of flights versus average delay
+```{r}
+delays <- not_cancelled %>% 
+  group_by(tailnum) %>% 
+  summarise(
+    delay = mean(arr_delay, na.rm = TRUE),
+    n = n()
+  )
+
+ggplot(data = delays, mapping = aes(x = n, y = delay)) + 
+  geom_point(alpha = 1/10)
+```
+#Install package lahman to convert tibble
+```{r}
+install.packages("Lahman")
+```
+```{r}
+library(Lahman)
+```
+
+# To convert to a tibble so it prints nicely
+```{r}
+batting <- as_tibble(Lahman::Batting)
+
+batters <- batting %>% 
+  group_by(playerID) %>% 
+  summarise(
+    ba = sum(H, na.rm = TRUE) / sum(AB, na.rm = TRUE),
+    ab = sum(AB, na.rm = TRUE)
+  )
+
+batters %>% 
+  filter(ab > 100) %>% 
+  ggplot(mapping = aes(x = ab, y = ba)) +
+    geom_point() + 
+    geom_smooth(se = FALSE)
+```
+#One of the summary functional very useful
+```{r}
+not_cancelled %>% 
+  group_by(year, month, day) %>% 
+  summarise(
+    avg_delay1 = mean(arr_delay),
+    avg_delay2 = mean(arr_delay[arr_delay > 0]) 
+  )
+```
+# To find why the distance to some destinations are more variable than to others
+```{r}
+not_cancelled %>% 
+  group_by(dest) %>% 
+  summarise(distance_sd = sd(distance)) %>% 
+  arrange(desc(distance_sd))
+```
+# To find when the first and last flights leave each day
+```{r}
+not_cancelled %>% 
+  group_by(year, month, day) %>% 
+  summarise(
+    first = min(dep_time),
+    last = max(dep_time)
+  )
+```
+#To find first and last departure for each day
+```{r}
+not_cancelled %>% 
+  group_by(year, month, day) %>% 
+  summarise(
+    first_dep = first(dep_time), 
+    last_dep = last(dep_time)
+  )
+```
+
+# To find which destinations have the most carriers
+```{r}
+not_cancelled %>% 
+  group_by(dest) %>% 
+  summarise(carriers = n_distinct(carrier)) %>% 
+  arrange(desc(carriers))
+```
+# To find what proportion of flights are delayed by more than an hour
+```{r}
+not_cancelled %>% 
+  group_by(year, month, day) %>% 
+  summarise(hour_perc = mean(arr_delay > 60))
+```
+#Grouping by multiple variables
+```{r}
+daily <- group_by(flights, year, month, day)
+(per_day   <- summarise(daily, flights = n()))
+```
+#To redo grouping or ungroup data
+```{r}
+daily %>% 
+  ungroup() %>%             
+  summarise(flights = n()) 
+```
+#To understand grouped mutates:
+#Example, To find the worst members of each group
+```{r}
+flights_sml %>% 
+  group_by(year, month, day) %>%
+  filter(rank(desc(arr_delay)) < 10)
+```
+#To find all groups bigger than a threshold
+```{r}
+popular_dests <- flights %>% 
+  group_by(dest) %>% 
+  filter(n() > 365)
+popular_dests
+```
+#How to standardise to compute per group metrics
+```{r}
+popular_dests %>% 
+  filter(arr_delay > 0) %>% 
+  mutate(prop_delay = arr_delay / sum(arr_delay)) %>% 
+  select(year:day, dest, arr_delay, prop_delay)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,241 @@
+---
+title: "ANLY 506 Week 5"
+author: "Swetha Venkatapuram"
+date: "June 06, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+#Topics Covered in the week 5 Code file are as follows:
+#Tidy Data
+#Spreading and Gathering
+#Separating and Uniting
+#Missing Values
+#Case Study on WHO data
+
+
+#This tool helps in tidying up the messy datasets
+```{r}
+library(tidyverse)
+```
+#This package serves as a lightweight, cross-platform and easy to maintain
+```{r}
+library(tinytex)
+```
+#Sample Dataset 
+```{r}
+table1
+```
+#Second sample dataset
+```{r}
+table2
+```
+#To spread across two tibbles
+#For Cases
+```{r}
+table4a
+```
+#For Population
+```{r}
+table4b
+```
+# This code is used to compute rate per 10,000
+```{r}
+table1 %>%
+  mutate(rate = cases / population * 10000)
+```
+# To compute cases per year
+```{r}
+table1 %>% 
+  count(year, wt = cases)
+```
+#To understand the Visual Changes install the necessary tool ggplot2
+```{r}
+install.packages("ggplot2")
+```
+```{r}
+library(ggplot2)
+```
+#Result will be a plot where we can notice the visual changes
+```{r}
+ggplot(table1, aes(year, cases)) + 
+  geom_line(aes(group = country), colour = "grey50") + 
+  geom_point(aes(colour = country))
+```
+#The gather() is used whenever we notice the columns are not variables
+```{r}
+table4a %>% 
+  gather(`1999`, `2000`, key = "year", value = "cases")
+```
+#Here, the variables are stored in cell values
+```{r}
+table4b %>% 
+  gather(`1999`, `2000`, key = "year", value = "population")
+```
+#Below are the steps used to combine the tidied versions of both tibbles into a single tibble
+#Step1
+```{r}
+tidy4a <- table4a %>% 
+  gather(`1999`, `2000`, key = "year", value = "cases")
+```
+#Step2
+```{r}
+tidy4b <- table4b %>% 
+  gather(`1999`, `2000`, key = "year", value = "population")
+```
+#Step3
+```{r}
+left_join(tidy4a, tidy4b)
+```
+#Each observation is spread across two rows
+```{r}
+table2 %>%
+    spread(key = type, value = count)
+```
+#Separate() is used to separate out the column name as well as to separate into
+```{r}
+table3 %>% 
+  separate(rate, into = c("cases", "population"))
+```
+#Using a specific character to separate
+```{r}
+table3 %>% 
+  separate(rate, into = c("cases", "population"), sep = "/")
+```
+#To convert to better types
+```{r}
+table3 %>% 
+  separate(rate, into = c("cases", "population"), convert = TRUE)
+```
+#To separate last 2 digits of each year
+```{r}
+table3 %>% 
+  separate(year, into = c("century", "year"), sep = 2)
+```
+#Unite() is used to rejoin the multiple columns
+```{r}
+table5 %>% 
+  unite(new, century, year)
+```
+#USe "" to if we do not want any separator
+```{r}
+table5 %>% 
+  unite(new, century, year, sep = "")
+```
+#Understanding the Missing Values
+```{r}
+stocks <- tibble(
+  year   = c(2015, 2015, 2015, 2015, 2016, 2016, 2016),
+  qtr    = c(   1,    2,    3,    4,    2,    3,    4),
+  return = c(1.88, 0.59, 0.35,   NA, 0.92, 0.17, 2.66)
+)
+```
+#To make implicit missing value explicit
+```{r}
+stocks %>% 
+  spread(year, return)
+```
+#To make explicit missing value implicit
+```{r}
+stocks %>% 
+  spread(year, return) %>% 
+  gather(year, return, `2015`:`2016`, na.rm = TRUE)
+```
+#Another important tool to make missing values explicit
+```{r}
+stocks %>% 
+  complete(year, qtr)
+```
+#This is used for small tables of data
+```{r}
+treatment <- tribble(
+  ~ person,           ~ treatment, ~response,
+  "Derrick Whitmore", 1,           7,
+  NA,                 2,           10,
+  NA,                 3,           9,
+  "Katherine Burke",  1,           4
+)
+```
+#It is used where values are not repeated when they are recorded each time.
+```{r}
+treatment %>% 
+  fill(person)
+```
+#CaseStudy - WHO dataset taken
+```{r}
+who
+```
+#Use of na.rm to exclude the missing values and analyze on present values
+```{r}
+who1 <- who %>% 
+  gather(new_sp_m014:newrel_f65, key = "key", value = "cases", na.rm = TRUE)
+who1
+```
+#Counting them to get the clue on structure
+```{r}
+who1 %>% 
+  count(key)
+```
+#MAking all variable names consistent
+```{r}
+who2 <- who1 %>% 
+  mutate(key = stringr::str_replace(key, "newrel", "new_rel"))
+who2
+```
+#Using separate() to split the codes at each underscore
+```{r}
+who3 <- who2 %>% 
+  separate(key, c("new", "type", "sexage"), sep = "_")
+who3
+```
+#Dropping column to avoid redundancy
+#One Column drop
+```{r}
+who3 %>% 
+  count(new)
+```
+#Two Columns drop
+```{r}
+who4 <- who3 %>% 
+  select(-new, -iso2, -iso3)
+who4
+```
+#Separating two columns by splitting afetr the first character
+```{r}
+who5 <- who4 %>% 
+  separate(sexage, c("sex", "age"), sep = 1)
+who5
+```
+#At this stage, the WHO dataset is tidy now.
+```{r}
+who %>%
+  gather(key, value, new_sp_m014:newrel_f65, na.rm = TRUE) %>% 
+  mutate(key = stringr::str_replace(key, "newrel", "new_rel")) %>%
+  separate(key, c("new", "var", "sexage")) %>% 
+  select(-new, -iso2, -iso3) %>% 
+  separate(sexage, c("sex", "age"), sep = 1)
+```
+

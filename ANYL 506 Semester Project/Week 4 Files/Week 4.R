@@ -1,0 +1,256 @@
+#Topics Covered in the week 4 Code file are as follows:
+#MAtrices and Dataframes
+#Creating MAtrices and Dataframes
+#MAtrix and Dataframe Functions
+#Modifying Dataframe Columns
+#Slicing Dataframes
+#Vector Basics
+#Using Atomic Vectors
+#REcursive Vectors(Lists)
+#Attributes
+#Augmented Vectors
+
+#Assing values to the objects
+x <- 1:5
+y <- 6:10
+z <- 11:15
+
+# This code i to create matrix with columns x, y ,z
+cbind(x, y, z)
+cbind(c(1, 2, 3, 4, 5),c("a", "b", "c", "d", "e"))
+# This code i to create matrix with rows x, y ,z
+rbind(x, y, z)
+#MAtrix() is used to create a matrix with given data by number of columns and rows.Some of the examples below
+matrix(data = 1:10,
+       nrow = 5,
+       ncol = 2)
+matrix(data = 1:10,
+       nrow = 2,
+       ncol = 5)
+matrix(data = 1:10,
+       nrow = 2,
+       ncol = 5,
+       byrow = TRUE)
+#This code is used to create a sample dataframe
+survey <- data.frame("index" = c(1, 2, 3, 4, 5),
+                     "sex" = c("m", "m", "m", "f", "f"),
+                     "age" = c(99, 46, 23, 54, 23))
+survey
+str(survey)
+#Use of arguement for no more factors
+survey <- data.frame("index" = c(1, 2, 3, 4, 5),
+                     "sex" = c("m", "m", "m", "f", "f"),
+                     "age" = c(99, 46, 23, 54, 23),
+                     stringsAsFactors = FALSE)
+survey
+str(survey)
+#To get first and last few rows
+head(ChickWeight)
+tail(ChickWeight)
+#It is used to open the entire dataframe in a new window
+View(ChickWeight)
+#To get summary statistics of the selected dataframe
+summary(ToothGrowth)
+#To see more information of the dataframe
+str(ToothGrowth)
+names(ToothGrowth)
+#Get len column values
+ToothGrowth$len
+#To find the mean or average of selected column
+mean(ToothGrowth$len)
+table(ToothGrowth$supp)
+head(ToothGrowth[c("len", "supp")])
+#Creating a new data frame and then adding new column to it
+survey2 <- data.frame("index" = c(1, 2, 3, 4, 5),
+                     "age" = c(24, 25, 42, 56, 22))
+survey2
+survey2$sex <- c("m", "m", "f", "f", "m")
+survey2
+#This code is used to change any column name in a dataframe. 
+#For example, to change the name of first column of dataframe to a new name. See below
+names(survey2)[1] <- "participant.number"
+survey2
+names(survey2)[names(survey2) == "age"] <- "years"
+survey2
+#This code is to get/returns the selected row(s) and column(s) from the dataframe. 
+#Below are few examples with combinations for data[rows,columns]
+ToothGrowth[1:6, 1]
+ToothGrowth[1:3, c(1,3)]
+ToothGrowth[1, ]
+ToothGrowth[, 2]
+#To create a new dataframe with existing/same rows of current dataframe selected.
+ToothGrowth.VC <- ToothGrowth[ToothGrowth$supp == "VC", ]
+#Use the same code with different logical conditions
+ToothGrowth.OJ.a <- ToothGrowth[ToothGrowth$supp == "OJ" &
+                                  ToothGrowth$dose < 1, ]
+#Returns the values for rows from a dataframe with logical conditions or filters
+subset(x = ToothGrowth, subset = len < 20 & supp == "OJ" & dose >= 1)
+subset(x = ToothGrowth,
+       subset = len > 30 & supp == "VC",
+       select = c(len, dose))
+#To find the mean value of tooth length of Guinea pigs given OJ, follow the below steps 
+# Step 1 is to create a subsettted dataframe called oj
+oj <- subset(x = ToothGrowth,
+             subset = supp == "OJ")
+# Then calculate the mean of the len column from the new subsetted dataset
+mean(oj$len)
+#Alternatively, we can do te above calculations using logical indexing
+oj <- ToothGrowth[ToothGrowth$supp == "OJ",]
+mean(oj$len)
+#In more simpler way, we can simply do it in one line.
+mean(ToothGrowth$len[ToothGrowth$supp == "OJ"])
+#With() function helps in adding or getting more information with simpler and more efficient way
+# For example, create a new dataframe with additional information
+health <- data.frame("age" = c(32, 24, 43, 19, 43),
+                     "height" = c(1.75, 1.65, 1.50, 1.92, 1.80),
+                     "weight" = c(70, 65, 62, 79, 85))
+health
+# Suppose to caluclate any health metric like bmi
+health$weight / health$height ^ 2
+#Now, using with()
+with(health, weight / height ^ 2)
+#Other alternative codes
+health$weight + health$height / health$age + 2 * health$height
+with(health, weight + height / age + 2 * height)
+#Learning Vectors with more functions
+#To know the type of selected data
+typeof(letters)
+typeof(1:10)
+#To find the length
+x <- list("a", "b", 1:10)
+x
+length(x)
+#Use of comaparision operators
+1:10 %% 3 == 0
+c(TRUE, TRUE, FALSE, NA)
+#For numeric vectors, by default numbers show as double. 
+#To clear the default and convert to integer, use L after the number
+typeof(1)
+typeof(1L)
+1.5L
+#Few more examples
+x <- sqrt(2) ^ 2
+x
+x - 2
+c(-1, 0, 1) / 0
+#Character Vectors
+install.packages("pryr")
+library(pryr)
+x <- "This is a reasonably long string."
+pryr::object_size(x)
+y <- rep(x, 1000)
+pryr::object_size(y)
+#Understanding Missing Values
+#For Logical
+NA
+#For Integer
+NA_integer_
+#For Double
+NA_real_
+#For Character
+NA_character_
+#Using Atomic Vectors
+x <- sample(20, 100, replace = TRUE)
+x
+y <- x > 10
+y
+sum(y)  # To find how many are greater than 10?
+mean(y) # To find what proportion are greater than 10?
+if (length(x)) {
+  # do something
+}
+typeof(c(TRUE, 1L))
+typeof(c(1L, 1.5))
+typeof(c(1.5, "a"))
+#To understand the usage of Scalars and recycling rules
+sample(10) + 100
+runif(10) > 0.5
+1:10 + 1:2
+1:10 + 1:3
+tibble(x = 1:4, y = 1:2)
+tibble(x = 1:4, y = rep(1:2, 2))
+tibble(x = 1:4, y = rep(1:2, each = 2))
+#Any type of the vector can be names using the following function
+c(x = 1, y = 2, z = 4)
+#Alternative
+set_names(1:3, c("a", "b", "c"))
+#This is to subset with a positive integers which keeps the elements at those positions
+x <- c("one", "two", "three", "four", "five")
+x[c(3, 2, 5)]
+x[c(1, 1, 5, 5, 5, 2)]
+#Use of negative values drop the elements at the specified positions:
+x[c(-1, -3, -5)]
+#Gets errors if both negative and positive values are used
+x[c(1, -1)]
+x[0]
+x <- c(10, 3, NA, 5, 8, 1, NA)
+# Returns all non-missing values of x
+x[!is.na(x)]
+# Returns all even (or missing!) values of x
+x[x %% 2 == 0]
+#For a named vector, we can subset it with a character vector
+x <- c(abc = 1, def = 2, xyz = 5)
+x[c("xyz", "def")]
+#List () contains elements of different types like strings, numbers, vectors etc
+x <- list(1, 2, 3)
+x
+str(x)
+x_named <- list(a = 1, b = 2, c = 3)
+str(x_named)
+y <- list("a", 1L, 1.5, TRUE)
+str(y)
+#Lists within Lists
+z <- list(list(1, 2), list(3, 4))
+str(z)
+#Visualizing the lists
+x1 <- list(c(1, 2), c(3, 4))
+x2 <- list(list(1, 2), list(3, 4))
+x3 <- list(1, list(2, list(3)))
+#Subsetting the lists
+a <- list(a = 1:3, b = "a string", c = pi, d = list(-1, -5))
+str(a[1:2])
+str(a[4])
+#Extracting the elements of a lists
+str(a[[1]])
+str(a[[4]])
+a$a
+a[["a"]]
+#Understanding Attributes
+x <- 1:10
+attr(x, "greeting")
+attr(x, "greeting") <- "Hi!"
+attr(x, "farewell") <- "Bye!"
+attributes(x)
+#Generic Functions
+as.Date
+methods("as.Date")
+getS3method("as.Date", "default")
+getS3method("as.Date", "numeric")
+#Augmented Vecotrs:
+#Factors:
+x <- factor(c("ab", "cd", "ab"), levels = c("ab", "cd", "ef"))
+typeof(x)
+attributes(x)
+#Dates & Date-times
+x <- as.Date("1971-01-01")
+unclass(x)
+typeof(x)
+attributes(x)
+x <- lubridate::ymd_hm("1970-01-01 01:00")
+unclass(x)
+typeof(x)
+attributes(x)
+attr(x, "tzone") <- "US/Pacific"
+x
+attr(x, "tzone") <- "US/Eastern"
+x
+y <- as.POSIXlt(x)
+typeof(y)
+attributes(y)
+#Tibbles
+tb <- tibble::tibble(x = 1:5, y = 5:1)
+typeof(tb)
+attributes(tb)
+df <- data.frame(x = 1:5, y = 5:1)
+typeof(df)
+attributes(df)
